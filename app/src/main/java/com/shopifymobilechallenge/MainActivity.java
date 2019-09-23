@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
@@ -112,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         dialog.dismiss();
                         finish();
                     });
+                    builder.create().show();
+                }else{
+                    //if the deck is empty load the deck
+                    if(deck.isEmpty()){
+                        new LoadProductTask().execute(urlString);
+                    }
                 }
             }
         }else{
@@ -122,7 +126,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-
+        if(checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.ACCESS_WIFI_STATE},REQUEST_CODE);
+        }
+        //check if wifi is on before hand
         WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
         int result = wifiManager.getWifiState();
         if(result != WifiManager.WIFI_STATE_ENABLED){
