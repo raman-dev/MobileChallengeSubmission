@@ -4,11 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,8 +52,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SettingsDialogFragment settingsDialogFragment;
     private WinDialogFragment winDialogFragment;
 
+    private Button shuffleButton;
     private TextView remainingPairLabel;
     private TextView fastestTimeLabel;
+    private TextView pairFoundLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         linearLayout = findViewById(R.id.linearLayout);
         chronometer = findViewById(R.id.countUpChronometer);
         remainingPairLabel = findViewById(R.id.RemainingPairLabel);
-        fastestTimeLabel = findViewById(R.id.FastestTimeLabel);
+        pairFoundLabel = findViewById(R.id.PairFoundLabel);
+        shuffleButton = findViewById(R.id.ShuffleButton);
 
         deck = new ArrayList<>();
         mainMenuDialogFragment = new MainMenuDialogFragment(this);
@@ -145,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 gsm.NewGame();
                 gsm.StartGame();
                 break;
+
             case R.id.BackToMainButton:
                 winDialogFragment.dismiss();
                 if(!mainMenuDialogFragment.isAdded()){
@@ -223,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(Void value) {
             gsm = new GameStateManager(deck,defaultImage,new Handler(Looper.getMainLooper()));
-            gsm.setUiElements(getSupportFragmentManager(),winDialogFragment,linearLayout,chronometer,remainingPairLabel,fastestTimeLabel);
+            gsm.setUiElements(getSupportFragmentManager(),winDialogFragment,linearLayout,chronometer,shuffleButton,pairFoundLabel,remainingPairLabel);
 
             settingsDialogFragment.setGameStateManager(gsm);
             gsm.NewGame();

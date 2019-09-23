@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -17,6 +16,8 @@ import androidx.fragment.app.DialogFragment;
 
 public class WinDialogFragment extends DialogFragment {
     private View.OnClickListener clickListener;
+    private CharSequence scoreText;
+
     public WinDialogFragment(View.OnClickListener clickListener){
         this.clickListener = clickListener;
     }
@@ -30,7 +31,7 @@ public class WinDialogFragment extends DialogFragment {
 
         view.findViewById(R.id.PlayAgainButton).setOnClickListener(clickListener);
         view.findViewById(R.id.BackToMainButton).setOnClickListener(clickListener);
-
+        ((TextView)view.findViewById(R.id.YourTimeLabel)).setText(scoreText);
         builder.setView(view);
 
         TextView title = new TextView(getContext());
@@ -43,13 +44,10 @@ public class WinDialogFragment extends DialogFragment {
         title.setTextSize(30);
 
         builder.setCustomTitle(title);
-        AlertDialog dialog = builder.create();
-        dialog.setOnKeyListener((dialog1, keyCode, event) -> {
-            if(keyCode == KeyEvent.KEYCODE_BACK){
-                //when the win dialog is presented do what?
-            }
-            return true;
-        });
-        return dialog;
+        return builder.create();
+    }
+
+    public void setTime(CharSequence text) {
+        scoreText = text;
     }
 }

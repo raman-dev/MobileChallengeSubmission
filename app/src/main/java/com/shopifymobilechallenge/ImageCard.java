@@ -36,7 +36,6 @@ public class ImageCard extends AppCompatImageButton{
     private Drawable defaultDrawable;
 
     boolean isFaceUp = false;
-    boolean isAnimating = false;
     boolean isEliminated = false;
 
     String id;
@@ -108,13 +107,11 @@ public class ImageCard extends AppCompatImageButton{
         @Override
         public void onAnimationStart(Animator animation) {
             super.onAnimationStart(animation);
-            isAnimating = true;
         }
 
         @Override
         public void onAnimationEnd(Animator animation) {
             super.onAnimationEnd(animation);
-            isAnimating = false;
             initFlipDownAnimator.start();//flip it back down
         }
     };
@@ -161,7 +158,8 @@ public class ImageCard extends AppCompatImageButton{
 
     public void Reset(){
         isEliminated = false;
-        isAnimating = false;
         isFaceUp = false;
+        setImageBitmap(defaultImage);
+        setBackground(defaultDrawable);
     }
 }

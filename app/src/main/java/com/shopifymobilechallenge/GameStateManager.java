@@ -9,6 +9,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,7 +60,6 @@ public class GameStateManager implements View.OnClickListener,Runnable{
 
     private WinDialogFragment winDialogFragment;
     private TextView remainingPairLabel;
-    private TextView fastestTimeLabel;
 
     private FragmentManager fragmentManager;
 
@@ -77,6 +77,8 @@ public class GameStateManager implements View.OnClickListener,Runnable{
             animationsCompleted++;
         }
     };
+    private Button shuffleButton;
+    private TextView pairFoundLabel;
 
 
     public GameStateManager(ArrayList<ImageCard> deck, Bitmap defaultImage, Handler handler){
@@ -94,26 +96,41 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         });
     }
 
-    public void setUiElements(FragmentManager fragmentManager,WinDialogFragment winDialogFragment, LinearLayout linearLayout, Chronometer chronometer, TextView remainingPairLabel, TextView fastestTimeLabel) {
+    public void setUiElements(FragmentManager fragmentManager, WinDialogFragment winDialogFragment, LinearLayout linearLayout, Chronometer chronometer, Button shuffleButton, TextView pairFoundLabel, TextView remainingPairLabel) {
         this.linearLayout = linearLayout;
         this.chronometer = chronometer;
         this.remainingPairLabel = remainingPairLabel;
-        this.fastestTimeLabel = fastestTimeLabel;
         this.winDialogFragment = winDialogFragment;
         this.fragmentManager = fragmentManager;
+        this.pairFoundLabel = pairFoundLabel;
+
+        this.shuffleButton = shuffleButton;
+        shuffleButton.setOnClickListener(v -> {
+            GameStarted = false;
+            chronometer.stop();
+            animationsCompleted = 0;
+            NewGame();
+            StartGame();
+        });
     }
 
     public void NewGame(){
+        playField.clear();
+        CardsFaceUp = 0;
+        FaceUpCardList.clear();
+        remaining_pairs = matching_pairs;
+
         GetNewPlayFieldDimensions();
         ShufflePlayField();
         UpdatePlayField();
-        remaining_pairs = matching_pairs;
         updateRemainingPairLabel();
     }
 
     private void updateRemainingPairLabel(){
         String text = "Pairs Remaining: "+remaining_pairs;
+        String foundText = "Found: "+(matching_pairs - remaining_pairs);
         remainingPairLabel.setText(text);
+        pairFoundLabel.setText(foundText);
     }
 
     /**
@@ -123,11 +140,9 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         switch (currentGridSize){
             case SMALL_GRID:
                 rows = 5;
-                matching_pairs = 1;//\MIN_MATCHING_PAIRS;
                 break;
             case MEDIUM_GRID:
                 rows = 6;
-                matching_pairs = 1;
                 break;
             case LARGE_GRID:
                 rows = 7;
@@ -188,6 +203,7 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         LinearLayout.LayoutParams buttonSizeAdjusted = new LinearLayout.LayoutParams(imageButtonWidth,imageButtonHeight,1f);
         while (i < num_cards){
             ImageCard card = deck.get(i);
+            card.Reset();
             card.setLayoutParams(buttonSizeAdjusted);
             if(j < matching_pairs){//add the same card twice until j = matching pairs
                 ImageCard duplicate = new ImageCard(card.getContext(),this,card.id,card.image,defaultImage);
@@ -245,6 +261,7 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         //so when a button is clicked flip it up
         ImageCard card = (ImageCard)v;
         //the current card that was clicked
+        Log.i(TAG,"Cards Face Up =>"+CardsFaceUp);
         if(GameStarted && CardsFaceUp < NumCardsUpAllowed){
             Log.i(TAG,"Clicked card.id=>"+card.id);
             if(!card.isEliminated){
@@ -299,6 +316,9 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         //check if user has found all matching pairs
         if(remaining_pairs == 0){
             GameStarted = false;
+            chronometer.stop();
+            animationsCompleted = 0;
+            winDialogFragment.setTime(chronometer.getText());
             winDialogFragment.show(fragmentManager,"WinDialog!");
         }
     }
@@ -309,7 +329,6 @@ public class GameStateManager implements View.OnClickListener,Runnable{
         for (int i = 0; i < FaceUpCardList.size(); i++) {
             FaceUpCardList.get(i).HideImage();
         }
-
         FaceUpCardList.clear();
         CardsFaceUp = 0;
     }

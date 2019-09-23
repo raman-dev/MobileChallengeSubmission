@@ -33,7 +33,8 @@ public class RulesDialogFragment extends DialogFragment {
                 "\n3. If the two cards match, keep them.\n" +
                 "\n4. If they don't match cards will be turned back over.\n" +
                 "\n5. Remember what was on each card and where it was.\n" +
-                "\n6. The game is over when all the cards have been matched.\n");
+                "\n6. The game is over when all the cards have been matched.\n"+
+                "\n7. The goal is to get the fastest time to find all matching pairs.");
         return builder.create();
     }
 }
