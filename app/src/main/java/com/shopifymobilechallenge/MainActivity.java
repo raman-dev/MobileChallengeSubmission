@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()){
             case R.id.PlayButton:
                 mainMenuDialogFragment.dismiss();
+                gsm.NewGame();
                 gsm.StartGame();
                 hideStatusBar();
                 break;
@@ -280,7 +281,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             gsm.setUiElements(getSupportFragmentManager(),winDialogFragment,linearLayout,chronometer,shuffleButton,pairFoundLabel,remainingPairLabel);
 
             settingsDialogFragment.setGameStateManager(gsm);
-            gsm.NewGame();
 
             if(progressDialog != null){
                 progressDialog.dismiss();
