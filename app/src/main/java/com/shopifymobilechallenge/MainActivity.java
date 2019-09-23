@@ -1,8 +1,12 @@
 package com.shopifymobilechallenge;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -15,6 +19,7 @@ import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -30,6 +35,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private static final int REQUEST_CODE = 99;
     private final String urlString = "https://shopicruit.myshopify.com/admin/products.json?page=1&access_token=c32313df0d0ef512ca64d5b336a0d7c6";
 
     //grid sizes
@@ -92,13 +98,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         progressDialog.setCancelable(false);
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == REQUEST_CODE){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
+                int result = wifiManager.getWifiState();
+                if(result != WifiManager.WIFI_STATE_ENABLED){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("Turn On Wifi to Play");
+                    builder.setOnDismissListener(dialog -> {
+                        dialog.dismiss();
+                        finish();
+                    });
+                }
+            }
+        }else{
+            super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        //if the deck is empty load the deck
-        if(deck.isEmpty()){
-            new LoadProductTask().execute(urlString);
+
+        WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
+        int result = wifiManager.getWifiState();
+        if(result != WifiManager.WIFI_STATE_ENABLED){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Turn On Wifi to Play");
+            builder.setOnDismissListener(dialog -> {
+                dialog.dismiss();
+                finish();
+            });
+            builder.create().show();
+        }else{
+            //if the deck is empty load the deck
+            if(deck.isEmpty()){
+                new LoadProductTask().execute(urlString);
+            }
         }
+
     }
 
     @Override
